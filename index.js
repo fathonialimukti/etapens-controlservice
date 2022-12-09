@@ -3,6 +3,9 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import errorMiddleware from './middlewares/error.js'
 import indexRoute from './routes/index.js'
+import projectRoute from './routes/project.js'
+import backendRoute from './routes/backend.js'
+import databaseRoute from './routes/database.js'
 
 const app = express()
 
@@ -10,14 +13,16 @@ app.use( cors() )
 app.use( bodyParser.urlencoded( { extended: false } ) )
 app.use( bodyParser.json() )
 
-app.use( '/', indexRoute)
+app.use( '', indexRoute)
 
-app.use( '/project', studentRoute )
-app.use( '/backend', adminRoutes )
-app.use( '/database', lecturerRoute )
+app.use( '/project', projectRoute )
+app.use( '/backend', backendRoute )
+app.use( '/database', databaseRoute )
 
 app.use( errorMiddleware )
 
-app.listen( 5000, () =>
-    console.log( `🚀 Server ready at: http://localhost:5000 ⭐️ Good luck` ),
+const port = process.env.PORT || 5000
+
+app.listen( port, () =>
+    console.log( `🚀 Server ready at: http://localhost:${port} ⭐️ Good luck` ),
 )

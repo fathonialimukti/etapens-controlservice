@@ -1,16 +1,40 @@
-import util from "node:util"
-import { exec } from "node:child_process"
+import { execSync } from "node:child_process"
 import pids from 'port-pid'
+import { appDirectory } from '../constant/directories.js'
+import { hostIp } from "../constant/host.js"
 
-
-const Run = util.promisify( exec )
-const commandDir = "../command"
+const targetDirectory = ( username ) => `${ appDirectory }/${ username }/frontend`
+const targetPort = ( id ) => 10000 + parseInt(id)
 
 export const create = async ( req, res, next ) => {
     try {
-        const { stdout, stderr } = await Run( `sh ${ commandDir }/create.sh --username ${ req.body.username } --source-code ${ req.body.sourceCode } ${ req.body.type == "frontend" ? "-f" : "-b" } --port ${ req.body.port }` )
+        if ( !req.body.username || !req.body.sourceCode || !req.body.id || !req.body.type ) throw new Error( 'data missing' )
+        
+        const directory = targetDirectory( req.body.username )
+        const port = targetPort( req.body.id )
 
-        res.status( 200 ).json( { message: stdout, error: stderr } )
+        if ( req.body.type == 'NodeJs' ) {
+            await execSync( `
+                mkdir -p ${ directory }
+                git clone ${ req.body.sourceCode } ${ directory }
+                cd ${ directory }
+                pnpm i
+                pnpm build
+                pnpm i -P
+                (PORT=${ port } pnpm start&)
+                ` , { shell: '/bin/bash', stdio: 'inherit' } )
+        } else if ( req.body.type == 'WebStatic' ) {
+            await execSync( `
+                mkdir -p ${ directory }
+                git clone --depth 1 --no-checkout ${ req.body.sourceCode } ${ directory }
+                cd ${ directory }
+                git sparse-checkout set dist
+                git checkout
+                (serve -s dist -p ${ port }&)
+                ` , { shell: '/bin/bash', stdio: 'inherit' } )
+        }
+
+        res.status( 200 ).json( { url: `${ hostIp }:${ port }` } )
     } catch ( error ) {
         next( error )
     }
@@ -18,13 +42,35 @@ export const create = async ( req, res, next ) => {
 
 export const update = async ( req, res, next ) => {
     try {
-        const processPid = await pids( req.body.port )
+        if ( !req.body.username || !req.body.sourceCode || !req.body.id || !req.body.type ) throw new Error( 'data missing' )
+
+        const port = targetPort( req.body.id )
+        const processPid = await pids( port )
         const pid = processPid.all.pop()
-        await Run( `sh ${ commandDir }/stop.sh -pid ${ pid }` )
+        const directory = targetDirectory( req.body.username )
 
-        await Run( `sh ${ commandDir }/update.sh --username ${ req.body.username } ${ req.body.appType == "frontend" ? "-f" : "-b" }` )
+        await execSync( `
+            kill -15 ${ pid } && kill -9 ${ pid }
+            `, { shell: '/bin/bash', stdio: 'inherit' } )
 
-        res.status( 200 ).json( { message: "OK" } )
+        if ( req.body.type == 'NodeJs' ) {
+            await execSync( `
+                cd ${ directory }
+                git pull
+                pnpm i
+                pnpm build
+                pnpm i -P
+                (PORT=${ port } pnpm start&)
+                ` , { shell: '/bin/bash', stdio: 'inherit' } )
+        } else if ( req.body.type == 'WebStatic' ) {
+            await execSync( `
+                cd ${ directory }
+                git pull
+                (serve -s dist -p ${ port }&)
+                ` , { shell: '/bin/bash', stdio: 'inherit' } )
+        }
+
+        res.status( 200 ).json( { url: `${hostIp}:${port}` } )
     } catch ( error ) {
         next( error )
     }
@@ -32,13 +78,20 @@ export const update = async ( req, res, next ) => {
 
 export const remove = async ( req, res, next ) => {
     try {
-        const processPid = await pids( req.body.port )
+        if ( !req.body.username || !req.body.id ) throw new Error( 'data missing' )
+
+        const port = targetPort( req.body.id )
+        const processPid = await pids( port )
         const pid = processPid.all.pop()
-        await Run( `sh ${ commandDir }/stop.sh -pid ${ pid }` )
 
-        const { stdout, stderr } = await Run( `sh ${ commandDir }/delete.sh --username ${ req.body.username } ${ req.body.appType == 'frontend' ? '-f' : '-b' }` )
+        const directory = targetDirectory( req.body.username )
 
-        res.status( 200 ).json( { message: stdout, error: stderr } )
+        await execSync( `
+            kill -15 ${ pid } && kill -9 ${ pid }
+            rm -rf ${ directory }
+            `, { shell: '/bin/bash', stdio: 'inherit' } )
+
+        res.status( 200 ).json( {message: "OK"} )
     } catch ( error ) {
         next( error )
     }
