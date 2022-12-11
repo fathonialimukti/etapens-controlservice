@@ -1,5 +1,4 @@
 import { execSync } from "node:child_process"
-import pids from 'port-pid'
 import { appDirectory } from '../constant/directories.js'
 import { hostIp } from "../constant/host.js"
 

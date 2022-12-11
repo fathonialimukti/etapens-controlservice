@@ -6,14 +6,12 @@ specifiers:
   cors: ^2.8.5
   express: ^4.18.2
   nodemon: ^2.0.20
-  port-pid: ^0.0.7
 
 dependencies:
   '@aws-sdk/client-s3': 3.213.0
   body-parser: 1.20.1
   cors: 2.8.5
   express: 4.18.2
-  port-pid: 0.0.7
 
 devDependencies:
   nodemon: 2.0.20
@@ -1378,11 +1376,6 @@ packages:
     engines: {node: '>= 0.6'}
     dev: false
 
-  /netstats/0.0.6:
-    resolution: {integrity: sha512-j5sdwaoLX/0x74+8bFdnoVEo3RUQexm5Lw615MVrgx7/FSQx88dZj+t5whwrDSrlsiHMYhKpn52p/6oMYHTZ2A==}
-    engines: {node: '>=8'}
-    dev: false
-
   /nodemon/2.0.20:
     resolution: {integrity: sha512-Km2mWHKKY5GzRg6i1j5OxOHQtuvVsgskLfigG25yTtbyfRGn/GNvIbRyOf1PSCKJ2aT/58TiuUsuOU5UToVViw==}
     engines: {node: '>=8.10.0'}
@@ -1442,14 +1435,6 @@ packages:
     engines: {node: '>=8.6'}
     dev: true
 
-  /port-pid/0.0.7:
-    resolution: {integrity: sha512-2QkdCeuGLfu1jDxiiwOnafCgVFsMQXMEWvUVx9SMNq+4k6HDKiyA9YVRhmoMvJGg5ZhqEjblpj+1wdWMqn7scw==}
-    engines: {node: '>=8'}
-    dependencies:
-      netstats: 0.0.6
-      selective-whitespace: 1.0.4
-    dev: false
-
   /proxy-addr/2.0.7:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
     engines: {node: '>= 0.10'}
@@ -1497,12 +1482,6 @@ packages:
 
   /safer-buffer/2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
-    dev: false
-
-  /selective-whitespace/1.0.4:
-    resolution: {integrity: sha512-DyL/pLbb9poQNQOVndVohclAO8lq+6gEBW8q3H9c2fX+ODkugQMvjBilPjw09lrIuVRFRQ/nwhLdzn60sFh9lQ==}
-    dependencies:
-      tokenize-whitespace: 0.0.1
     dev: false
 
   /semver/5.7.1:
@@ -1593,10 +1572,6 @@ packages:
   /toidentifier/1.0.1:
     resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
     engines: {node: '>=0.6'}
-    dev: false
-
-  /tokenize-whitespace/0.0.1:
-    resolution: {integrity: sha512-OxbdMHTjVs0ccBMfjo1v5OH6bq8yhydewCd9n6xihgtZvI3wSqR00EsM86DjELLl6VtMkY2z99r5q+uNW79E+Q==}
     dev: false
 
   /touch/3.1.0:
