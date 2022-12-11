@@ -1,1 +1,1 @@
-export const appDirectory = "/mnt/Supporter/Informatika/LJ\\ D4/TA/app/apps"
+export const appDirectory = "/home/admin/apps"

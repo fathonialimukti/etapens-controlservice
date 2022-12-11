@@ -1,1 +1,1 @@
-export const hostIp = "http://192.168.0.0"
+export const hostIp = "http://54.254.66.71"

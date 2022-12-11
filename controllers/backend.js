@@ -8,7 +8,6 @@ import { hostIp } from "../constant/host.js"
 
 const targetDirectory = ( username ) => `${ appDirectory }/${ username }/backend`
 const targetPort = ( id ) => 20000 + parseInt( id )
-const stopProcess = async ( pid ) => await execSync( `kill -15 ${ pid } && kill -9 ${ pid } `, { shell: '/bin/bash', stdio: 'inherit' } )
 
 export const create = async ( req, res, next ) => {
     try {
@@ -21,10 +20,12 @@ export const create = async ( req, res, next ) => {
             mkdir -p ${ directory }
             git clone ${ req.body.sourceCode } ${ directory }
             cd ${ directory }
+
             nvm use ${ req.body.runtimeVersion }
             pnpm i
             pnpm build
             pnpm i -P
+            
             (PORT=${ port } pnpm start&)
             ` , { shell: '/bin/bash', stdio: 'inherit' } )
 
@@ -39,12 +40,10 @@ export const update = async ( req, res, next ) => {
         if ( !req.body.username || !req.body.sourceCode || !req.body.id ) throw new Error( 'data missing' )
 
         const port = targetPort( req.body.id )
-        const processPid = await pids( port )
-        const pid = processPid.all.pop()
+        await execSync( `killall -15 :${ port } && killall -9 :${ port } `, { shell: '/bin/bash', stdio: 'inherit' } )
         const directory = targetDirectory( req.body.username )
 
         await execSync( `
-            kill -15 ${ pid } && kill -9 ${ pid }
             cd ${ directory }
             git pull
             nvm use ${ req.body.runtimeVersion }
@@ -65,9 +64,7 @@ export const stop = async ( req, res, next ) => {
         if ( !req.body.id ) throw new Error( 'data missing' )
 
         const port = targetPort( req.body.id )
-        const processPid = await pids( port )
-        const pid = processPid.all.pop()
-        await stopProcess( pid )
+        await execSync( `killall -15 :${ port } && killall -9 :${ port } `, { shell: '/bin/bash', stdio: 'inherit' } )
 
         res.status( 200 ).json( { message: "OK" } )
     } catch ( error ) {
