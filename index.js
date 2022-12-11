@@ -6,9 +6,15 @@ import indexRoute from './routes/index.js'
 import projectRoute from './routes/project.js'
 import backendRoute from './routes/backend.js'
 import databaseRoute from './routes/database.js'
+import https from 'https'
+import fs from 'fs'
 
 const app = express()
 
+const options = {
+    key: fs.readFileSync( './private.key' ),
+    cert: fs.readFileSync( './certificate.crt' )
+}
 app.use( cors() )
 app.use( bodyParser.urlencoded( { extended: false } ) )
 app.use( bodyParser.json() )
@@ -23,6 +29,4 @@ app.use( errorMiddleware )
 
 const port = process.env.PORT || 5000
 
-app.listen( port, () =>
-    console.log( `🚀 Server ready at: http://localhost:${port} ⭐️ Good luck` ),
-)
+https.createServer( options, app ).listen( port )

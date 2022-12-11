@@ -39,7 +39,7 @@ export const update = async ( req, res, next ) => {
         if ( !req.body.username || !req.body.sourceCode || !req.body.id ) throw new Error( 'data missing' )
 
         const port = targetPort( req.body.id )
-        await execSync( `killall -15 :${ port } && killall -9 :${ port } `, { shell: '/bin/bash', stdio: 'inherit' } )
+        await execSync( `kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })`, { shell: '/bin/bash', stdio: 'inherit' } )
         const directory = targetDirectory( req.body.username )
 
         await execSync( `
@@ -63,7 +63,7 @@ export const stop = async ( req, res, next ) => {
         if ( !req.body.id ) throw new Error( 'data missing' )
 
         const port = targetPort( req.body.id )
-        await execSync( `killall -15 :${ port } && killall -9 :${ port } `, { shell: '/bin/bash', stdio: 'inherit' } )
+        await execSync( `kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })`, { shell: '/bin/bash', stdio: 'inherit' } )
 
         res.status( 200 ).json( { message: "OK" } )
     } catch ( error ) {
