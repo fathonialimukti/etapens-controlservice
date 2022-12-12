@@ -3,7 +3,7 @@ import util from "node:util"
 import { appDirectory } from '../constant/directories.js'
 import { hostIp } from "../constant/host.js"
 
-// const Run = util.promisify( exec )
+const Run = util.promisify( exec )
 
 const targetDirectory = ( username ) => `${ appDirectory }/${ username }/backend`
 const targetPort = ( id ) => 20000 + parseInt( id )
@@ -15,7 +15,7 @@ export const create = async ( req, res, next ) => {
         const directory = targetDirectory( req.body.username )
         const port = targetPort( req.body.id )
 
-        await execSync( `
+        const { stderr } = await Run( `
             mkdir -p ${ directory }
             git clone ${ req.body.sourceCode } ${ directory }
             cd ${ directory }
@@ -23,10 +23,14 @@ export const create = async ( req, res, next ) => {
             nvm use ${ req.body.runtimeVersion }
             pnpm i
             pnpm build
-            pnpm i -P
-            
+            pnpm i -P `)
+        
+        if ( stderr ) throw new Error( stderr )
+
+        await execSync( `
+            cd ${ directory }
             (PORT=${ port } pnpm start&)
-            ` , { shell: '/bin/bash', stdio: 'inherit' } )
+            ` , { shell: '/bin/bash', stdio: 'ignore' } )
 
         res.status( 200 ).json( { url: `${ hostIp }:${ port }` } )
     } catch ( error ) {
@@ -42,15 +46,20 @@ export const update = async ( req, res, next ) => {
         await execSync( `kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })`, { shell: '/bin/bash', stdio: 'inherit' } )
         const directory = targetDirectory( req.body.username )
 
+        const { stderr } = await Run( `
+                cd ${ directory }
+                git pull
+
+                nvm use ${ req.body.runtimeVersion }
+                pnpm i
+                pnpm build
+                pnpm i -P`)
+        if ( stderr ) throw new Error( stderr )
+
         await execSync( `
-            cd ${ directory }
-            git pull
-            nvm use ${ req.body.runtimeVersion }
-            pnpm i
-            pnpm build
-            pnpm i -P
-            (PORT=${ port } pnpm start&)
-            `, { shell: '/bin/bash', stdio: 'inherit' } )
+                cd ${ directory }
+                (PORT=${ port } pnpm start&)
+                ` , { shell: '/bin/bash', stdio: 'ignore' } )
 
         res.status( 200 ).json( { url: `${ hostIp }:${ port }` } )
     } catch ( error ) {
@@ -63,9 +72,10 @@ export const stop = async ( req, res, next ) => {
         if ( !req.body.id ) throw new Error( 'data missing' )
 
         const port = targetPort( req.body.id )
-        await execSync( `kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })`, { shell: '/bin/bash', stdio: 'inherit' } )
+        const { stdout,stderr } = await Run( `kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })`, { shell: '/bin/bash' } )
 
-        res.status( 200 ).json( { message: "OK" } )
+        if ( stderr ) throw new Error(stderr)
+        res.status( 200 ).json( { message: stdout } )
     } catch ( error ) {
         next( error )
     }
