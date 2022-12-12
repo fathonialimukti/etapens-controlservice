@@ -1,1 +1,1 @@
-export const hostIp = process.env.HOST_IP || "http://54.254.66.71"
+export const hostIp = process.env.HOST_IP || "ec2-54-151-179-33.ap-southeast-1.compute.amazonaws.com"
