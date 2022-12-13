@@ -8,7 +8,7 @@ export const create = async ( req, res, next ) => {
         if ( !req.body.dbname || !req.body.type || !req.body.username || !req.body.password ) throw new Error( 'data missing' )
 
         if ( req.body.type == 'mysql' ) {
-            const { stderr } = await Run( `
+            await execSync( `
                 mysql -u root -p
 
                 CREATE USER ${ req.body.username }@localhost IDENTIFIED BY '${ req.body.password }';
@@ -16,18 +16,18 @@ export const create = async ( req, res, next ) => {
 
                 CREATE DATABASE $DB_NAME;
 
-            `, { shell: '/bin/bash' } )
+            `, { shell: '/bin/bash', stdio: 'inherit' } )
 
             if ( stderr ) throw new Error( stderr )
         } else if ( req.body.type == 'postgresql' ) {
             console.log(req.body);
-            const { stderr } = await Run( `
+            await execSync( `
                 sudo -u postgres psql
 
                 CREATE USER ${ req.body.username } WITH PASSWORD '${ req.body.password }';
                 CREATE DATABASE ${ req.body.dbname } WITH OWNER ${ req.body.username };
 
-            `, { shell: '/bin/bash' } )
+            `, { shell: '/bin/bash', stdio: 'inherit' } )
 
             if ( stderr ) throw new Error( stderr )
         } else throw new Error( "Invalid DB type" )
