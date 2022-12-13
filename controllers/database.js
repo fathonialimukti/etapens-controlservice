@@ -18,8 +18,7 @@ export const create = async ( req, res, next ) => {
                 sudo mysql -e "CREATE DATABASE ${ req.body.dbname };"
 
             `, { shell: '/bin/bash', stdio: 'inherit' } )
-
-            if ( stderr ) throw new Error( stderr )
+            
         } else if ( req.body.type == 'postgresql' ) {
             // const postgresPassword = ''
 
