@@ -12,13 +12,13 @@ export const create = async ( req, res, next ) => {
 
             // mysql -u root -p ${rootPassword} -e "create database somedb"
             await execSync( `
-                sudo mysql -e "CREATE USER ${ req.body.username }@localhost IDENTIFIED BY '${ req.body.password }';"
+                sudo mysql -e "CREATE USER ${ req.body.username }@0.0.0.0 IDENTIFIED BY '${ req.body.password }';"
                 sudo mysql -e "GRANT ALL PRIVILEGES ON ${ req.body.dbname }.* TO ${ req.body.username }@localhost;"
 
                 sudo mysql -e "CREATE DATABASE ${ req.body.dbname };"
 
             `, { shell: '/bin/bash', stdio: 'inherit' } )
-            
+
         } else if ( req.body.type == 'postgresql' ) {
             // const postgresPassword = ''
 
