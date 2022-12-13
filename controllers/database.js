@@ -20,14 +20,12 @@ export const create = async ( req, res, next ) => {
 
             if ( stderr ) throw new Error( stderr )
         } else if ( req.body.type == 'postgresql' ) {
-            console.log(req.body);
-            const { stderr }= await Run( `
+            await execSync( `
                 sudo -u postgres psql -c "CREATE USER ${ req.body.username } WITH PASSWORD '${ req.body.password }';"
                 sudo -u postgres psql -c "CREATE DATABASE ${ req.body.dbname } WITH OWNER ${ req.body.username };"
 
             `, { shell: '/bin/bash', stdio: 'inherit' } )
 
-            if ( stderr ) throw new Error( stderr )
         } else throw new Error( "Invalid DB type" )
 
         res.status( 200 ).json( { message: "OK" } )
