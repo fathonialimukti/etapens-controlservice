@@ -21,7 +21,7 @@ export const create = async ( req, res, next ) => {
             if ( stderr ) throw new Error( stderr )
         } else if ( req.body.type == 'postgresql' ) {
             console.log(req.body);
-            await execSync( `
+            const { stderr }= await Run( `
                 sudo -u postgres psql -c "CREATE USER ${ req.body.username } WITH PASSWORD '${ req.body.password }';"
                 sudo -u postgres psql -c "CREATE DATABASE ${ req.body.dbname } WITH OWNER ${ req.body.username };"
 
