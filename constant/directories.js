@@ -1,1 +1,1 @@
-export const appDirectory = process.env.APPS_DIRECTORY || "/mnt/Supporter/Informatika/LJ\\ D4/TA/app/apps"
+export const appDirectory = process.env.APPS_DIRECTORY || "/home/admin/apps"
