@@ -20,6 +20,7 @@ export const create = async ( req, res, next ) => {
 
             if ( stderr ) throw new Error( stderr )
         } else if ( req.body.type == 'postgresql' ) {
+            console.log(req.body);
             const { stderr } = await Run( `
                 sudo -u postgres psql
 
