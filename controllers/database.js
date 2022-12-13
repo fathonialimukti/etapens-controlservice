@@ -8,18 +8,22 @@ export const create = async ( req, res, next ) => {
         if ( !req.body.dbname || !req.body.type || !req.body.username || !req.body.password ) throw new Error( 'data missing' )
 
         if ( req.body.type == 'mysql' ) {
+            // const rootPassword = ''
+
+            // mysql -u root -p ${rootPassword} -e "create database somedb"
             await execSync( `
-                mysql -u root -p
+                sudo mysql -e "CREATE USER ${ req.body.username }@localhost IDENTIFIED BY '${ req.body.password }';"
+                sudo mysql -e "GRANT ALL PRIVILEGES ON ${ req.body.dbname }.* TO ${ req.body.username }@localhost;"
 
-                CREATE USER ${ req.body.username }@localhost IDENTIFIED BY '${ req.body.password }';
-                GRANT ALL PRIVILEGES ON ${ req.body.dbname }.* TO ${ req.body.username }@localhost;
-
-                CREATE DATABASE ${ req.body.dbname };
+                sudo mysql -e "CREATE DATABASE ${ req.body.dbname };"
 
             `, { shell: '/bin/bash', stdio: 'inherit' } )
 
             if ( stderr ) throw new Error( stderr )
         } else if ( req.body.type == 'postgresql' ) {
+            // const postgresPassword = ''
+
+            // sudo -u postgres -p ${postgresPassword} psql -c "create database somedb"
             await execSync( `
                 sudo -u postgres psql -c "CREATE USER ${ req.body.username } WITH PASSWORD '${ req.body.password }';"
                 sudo -u postgres psql -c "CREATE DATABASE ${ req.body.dbname } WITH OWNER ${ req.body.username };"
