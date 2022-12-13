@@ -14,7 +14,7 @@ export const create = async ( req, res, next ) => {
                 CREATE USER ${ req.body.username }@localhost IDENTIFIED BY '${ req.body.password }';
                 GRANT ALL PRIVILEGES ON ${ req.body.dbname }.* TO ${ req.body.username }@localhost;
 
-                CREATE DATABASE $DB_NAME;
+                CREATE DATABASE ${ req.body.dbname };
 
             `, { shell: '/bin/bash', stdio: 'inherit' } )
 
@@ -22,10 +22,10 @@ export const create = async ( req, res, next ) => {
         } else if ( req.body.type == 'postgresql' ) {
             console.log(req.body);
             await execSync( `
-                sudo -u postgres psql
+                sudo -u postgres
 
-                CREATE USER ${ req.body.username } WITH PASSWORD '${ req.body.password }';
-                CREATE DATABASE ${ req.body.dbname } WITH OWNER ${ req.body.username };
+                psql -c "CREATE USER ${ req.body.username } WITH PASSWORD '${ req.body.password }';"
+                psql -c "CREATE DATABASE ${ req.body.dbname } WITH OWNER ${ req.body.username };"
 
             `, { shell: '/bin/bash', stdio: 'inherit' } )
 
