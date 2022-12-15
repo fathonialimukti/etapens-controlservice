@@ -8,6 +8,8 @@ import backendRoute from './routes/backend.js'
 import databaseRoute from './routes/database.js'
 import https from 'https'
 import fs from 'fs'
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 const app = express()
 
