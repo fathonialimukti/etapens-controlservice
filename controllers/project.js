@@ -8,14 +8,15 @@ const targetPort = ( id ) => 10000 + parseInt( id )
 
 export const create = async ( req, res, next ) => {
     try {
-        if ( !req.body.username || !req.body.sourceCode || !req.body.id || !req.body.type ) throw new Error( 'data missing' )
-        if ( req.body.type == 'NodeJs' && !req.body.runtimeVersion ) throw new Error( 'data missing' )
+        if ( !req.body.username || !req.body.sourceCode || !req.body.id || !req.body.type ) next( 'data missing' )
+        if ( req.body.type == 'NodeJs' && !req.body.runtimeVersion ) next( 'data missing' )
 
         const directory = targetDirectory( req.body.username )
         const port = targetPort( req.body.id )
 
         if ( req.body.type == 'NodeJs' ) {
-            const { stderr } = await Run( `
+            try {
+                await execSync( `
                 mkdir -p ${ directory } ;
                 git clone ${ req.body.sourceCode } ${ directory } ;
                 cd ${ directory } ;
@@ -23,30 +24,31 @@ export const create = async ( req, res, next ) => {
                 nvm use ${ req.body.runtimeVersion } ;
                 pnpm i ;
                 pnpm build ;
-                pnpm i -P `)
-            if ( stderr ) throw new Error( stderr )
-            
-            await execSync( `
-                cd ${ directory } ;
+                pnpm i -P
+
+                cd ${ directory }
                 (PORT=${ port } pnpm start&)
-                ` , { shell: '/bin/bash', stdio: 'ignore' } )
-            
+                `, { shell: '/bin/bash', stdio: 'ignore' } )
+            } catch (error) {
+                next(error)
+            }            
         } else if ( req.body.type == 'WebStatic' ) {
-            const { stderr } = await Run( `
-                mkdir -p ${ directory } ;
-                git clone --depth 1 --no-checkout ${ req.body.sourceCode } ${ directory } ;
-                cd ${ directory } ;
+            try {
+                await execSync( `
+                mkdir -p ${ directory }
+                git clone --depth 1 --no-checkout ${ req.body.sourceCode } ${ directory }
+                cd ${ directory }
 
-                git sparse-checkout set dist ;
-                git checkout` )
-            if ( stderr ) throw new Error( stderr )
-
-            await execSync( `
-                cd ${ directory } ;
+                git sparse-checkout set dist
+                git checkout
+                cd ${ directory }
                 (serve -s dist -p ${ port }&)
                 ` , { shell: '/bin/bash', stdio: 'ignore' } )
+            } catch (error) {
+                next(error)
+            }
             
-        } else throw new Error( "Invalid Application type" )
+        } else next( "Invalid Application type" )
 
         res.status( 200 ).json( { url: `${ process.env.HOST }:${ port }` } )
     } catch ( error ) {
@@ -56,8 +58,8 @@ export const create = async ( req, res, next ) => {
 
 export const update = async ( req, res, next ) => {
     try {
-        if ( !req.body.username || !req.body.sourceCode || !req.body.id || !req.body.type ) throw new Error( 'data missing' )
-        if ( req.body.type == 'NodeJs' && !req.body.runtimeVersion ) throw new Error( 'data missing' )
+        if ( !req.body.username || !req.body.sourceCode || !req.body.id || !req.body.type ) next( 'data missing' )
+        if ( req.body.type == 'NodeJs' && !req.body.runtimeVersion ) next( 'data missing' )
 
         const port = targetPort( req.body.id )
         await execSync( `kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })`, { shell: '/bin/bash', stdio: 'ignore' } )
@@ -65,7 +67,7 @@ export const update = async ( req, res, next ) => {
         const directory = targetDirectory( req.body.username )
 
         if ( req.body.type == 'NodeJs' ) {
-            const { stderr } = await Run( `
+            await execSync( `
                 cd ${ directory } ;
                 git pull ;
 
@@ -73,7 +75,7 @@ export const update = async ( req, res, next ) => {
                 pnpm i ;
                 pnpm build ;
                 pnpm i -P`)
-            if ( stderr ) throw new Error( stderr )
+            if ( stderr ) next( stderr )
 
             await execSync( `
                 cd ${ directory } ;
@@ -81,10 +83,10 @@ export const update = async ( req, res, next ) => {
                 ` , { shell: '/bin/bash', stdio: 'ignore' } )
             
         } else if ( req.body.type == 'WebStatic' ) {
-            const { stderr } = await Run( `
+            await execSync( `
                 cd ${ directory } ;
                 git pull`)
-            if ( stderr ) throw new Error( stderr )
+            if ( stderr ) next( stderr )
 
             await execSync( `
                 cd ${ directory } ;
@@ -100,12 +102,12 @@ export const update = async ( req, res, next ) => {
 
 export const stop = async ( req, res, next ) => {
     try {
-        if ( !req.body.id ) throw new Error( 'data missing' )
+        if ( !req.body.id ) next( 'data missing' )
 
         const port = targetPort( req.body.id )
         const { stdout, stderr } = await Run( `kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })`, { shell: '/bin/bash' } )
 
-        if ( stderr ) throw new Error( stderr )
+        if ( stderr ) next( stderr )
         res.status( 200 ).json( { message: stdout } )
     } catch ( error ) {
         next( error )
@@ -114,7 +116,7 @@ export const stop = async ( req, res, next ) => {
 
 export const remove = async ( req, res, next ) => {
     try {
-        if ( !req.body.username || !req.body.id ) throw new Error( 'data missing' )
+        if ( !req.body.username || !req.body.id ) next( 'data missing' )
 
         const port = targetPort( req.body.id )
         const directory = targetDirectory( req.body.username )
@@ -123,7 +125,7 @@ export const remove = async ( req, res, next ) => {
             rm -rf ${ directory } 
         `, { shell: '/bin/bash' } )
 
-        if ( stderr ) throw new Error( stderr )
+        if ( stderr ) next( stderr )
 
         res.status( 200 ).json( { message: stdout || "OK" } )
     } catch ( error ) {

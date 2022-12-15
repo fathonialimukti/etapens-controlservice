@@ -5,7 +5,7 @@ const Run = util.promisify( exec )
 
 export const create = async ( req, res, next ) => {
     try {
-        if ( !req.body.dbname || !req.body.type || !req.body.username || !req.body.password ) throw new Error( 'data missing' )
+        if ( !req.body.dbname || !req.body.type || !req.body.username || !req.body.password ) next( 'data missing' )
 
         if ( req.body.type == 'mysql' ) {
             // const rootPassword = ''
@@ -29,7 +29,7 @@ export const create = async ( req, res, next ) => {
 
             `, { shell: '/bin/bash', stdio: 'inherit' } )
 
-        } else throw new Error( "Invalid DB type" )
+        } else next( "Invalid DB type" )
 
         res.status( 200 ).json( { message: "OK" } )
     } catch ( error ) {
@@ -43,7 +43,7 @@ export const update = async ( req, res, next ) => {
         
             `, { shell: '/bin/bash' } )
 
-        if ( stderr ) throw new Error( stderr )
+        if ( stderr ) next( stderr )
         res.status( 200 ).json( { message: stdout } )
     } catch ( error ) {
         next( error )
@@ -56,7 +56,7 @@ export const remove = async ( req, res, next ) => {
         
             `, { shell: '/bin/bash' } )
 
-        if ( stderr ) throw new Error( stderr )
+        if ( stderr ) next( stderr )
         res.status( 200 ).json( { message: stdout } )
     } catch ( error ) {
         next( error )
