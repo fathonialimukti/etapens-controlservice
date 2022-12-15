@@ -23,7 +23,6 @@ export const create = async ( req, res, next ) => {
             pnpm build
             pnpm i -P 
 
-            cd ${ directory }
             (PORT=${ port } pnpm start&)
             ` , { shell: '/bin/bash', stdio: 'inherit' } )
 
