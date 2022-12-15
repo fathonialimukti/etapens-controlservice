@@ -25,7 +25,7 @@ export const create = async ( req, res, next ) => {
 
             cd ${ directory }
             (PORT=${ port } pnpm start&)
-            ` , { shell: '/bin/bash', stdio: 'ignore' } )
+            ` , { shell: '/bin/bash', stdio: 'inherit' } )
 
         res.status( 200 ).json( { url: `${ process.env.HOST }:${ port }` } )
     } catch ( error ) {
@@ -52,7 +52,7 @@ export const update = async ( req, res, next ) => {
 
             cd ${ directory }
             (PORT=${ port } pnpm start&)
-            ` , { shell: '/bin/bash', stdio: 'ignore' } )
+            ` , { shell: '/bin/bash', stdio: 'inherit' } )
 
         res.status( 200 ).json( { url: `${ process.env.HOST }:${ port }` } )
     } catch ( error ) {
