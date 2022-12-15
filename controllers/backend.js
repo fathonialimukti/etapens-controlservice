@@ -11,7 +11,7 @@ export const create = async ( req, res, next ) => {
         if ( !req.body.username || !req.body.sourceCode || !req.body.id || !req.body.runtimeVersion ) next( 'data missing' )
 
         const directory = targetDirectory( req.body.username )
-        const port = targetPort( req.body.id )``
+        const port = targetPort( req.body.id )
 
         await execSync( `
             mkdir -p ${ directory }
