@@ -28,7 +28,7 @@ export const create = async ( req, res, next ) => {
 
                 cd ${ directory }
                 (PORT=${ port } pnpm start&)
-                `, { shell: '/bin/bash', stdio: 'ignore' } )
+                `, { shell: '/bin/bash', stdio: 'inherit' } )
             } catch (error) {
                 next(error)
             }            
@@ -43,7 +43,7 @@ export const create = async ( req, res, next ) => {
                 git checkout
                 cd ${ directory }
                 (serve -s dist -p ${ port }&)
-                ` , { shell: '/bin/bash', stdio: 'ignore' } )
+                ` , { shell: '/bin/bash', stdio: 'inherit' } )
             } catch (error) {
                 next(error)
             }
@@ -62,7 +62,7 @@ export const update = async ( req, res, next ) => {
         if ( req.body.type == 'NodeJs' && !req.body.runtimeVersion ) next( 'data missing' )
 
         const port = targetPort( req.body.id )
-        await execSync( `kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })`, { shell: '/bin/bash', stdio: 'ignore' } )
+        await execSync( `kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })`, { shell: '/bin/bash', stdio: 'inherit' } )
 
         const directory = targetDirectory( req.body.username )
 
@@ -80,7 +80,7 @@ export const update = async ( req, res, next ) => {
             await execSync( `
                 cd ${ directory } ;
                 (PORT=${ port } pnpm start&)
-                ` , { shell: '/bin/bash', stdio: 'ignore' } )
+                ` , { shell: '/bin/bash', stdio: 'inherit' } )
             
         } else if ( req.body.type == 'WebStatic' ) {
             await execSync( `
@@ -91,7 +91,7 @@ export const update = async ( req, res, next ) => {
             await execSync( `
                 cd ${ directory } ;
                 (serve -s dist -p ${ port }&)
-                ` , { shell: '/bin/bash', stdio: 'ignore' } )
+                ` , { shell: '/bin/bash', stdio: 'inherit' } )
         }
 
         res.status( 200 ).json( { url: `${ process.env.HOST }:${ port }` } )
