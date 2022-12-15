@@ -11,22 +11,19 @@ export const create = async ( req, res, next ) => {
         if ( !req.body.username || !req.body.sourceCode || !req.body.id || !req.body.runtimeVersion ) next( 'data missing' )
 
         const directory = targetDirectory( req.body.username )
-        const port = targetPort( req.body.id )
-
-        const { stderr } = await Run( `
-            mkdir -p ${ directory } ;
-            git clone ${ req.body.sourceCode } ${ directory } ;
-            cd ${ directory } ;
-
-            nvm use ${ req.body.runtimeVersion } ;
-            pnpm i ;
-            pnpm build ;
-            pnpm i -P `)
-        
-        if ( stderr ) next( stderr )
+        const port = targetPort( req.body.id )``
 
         await execSync( `
-            cd ${ directory } ;
+            mkdir -p ${ directory }
+            git clone ${ req.body.sourceCode } ${ directory }
+            cd ${ directory }
+
+            nvm use ${ req.body.runtimeVersion }
+            pnpm i
+            pnpm build
+            pnpm i -P 
+
+            cd ${ directory }
             (PORT=${ port } pnpm start&)
             ` , { shell: '/bin/bash', stdio: 'ignore' } )
 
@@ -44,20 +41,18 @@ export const update = async ( req, res, next ) => {
         await execSync( `kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })`, { shell: '/bin/bash', stdio: 'inherit' } )
         const directory = targetDirectory( req.body.username )
 
-        const { stderr } = await Run( `
-                cd ${ directory } ;
-                git pull ;
-
-                nvm use ${ req.body.runtimeVersion } ;
-                pnpm i ;
-                pnpm build ;
-                pnpm i -P`)
-        if ( stderr ) next( stderr )
-
         await execSync( `
-                cd ${ directory } ;
-                (PORT=${ port } pnpm start&)
-                ` , { shell: '/bin/bash', stdio: 'ignore' } )
+            cd ${ directory }
+            git pull
+
+            nvm use ${ req.body.runtimeVersion }
+            pnpm i
+            pnpm build
+            pnpm i -P
+
+            cd ${ directory }
+            (PORT=${ port } pnpm start&)
+            ` , { shell: '/bin/bash', stdio: 'ignore' } )
 
         res.status( 200 ).json( { url: `${ process.env.HOST }:${ port }` } )
     } catch ( error ) {
