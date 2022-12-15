@@ -18,33 +18,33 @@ export const create = async ( req, res, next ) => {
 
         if ( req.body.type == 'NodeJs' ) {
             const { stderr } = await Run( `
-                mkdir -p ${ directory }
-                git clone ${ req.body.sourceCode } ${ directory }
-                cd ${ directory }
+                mkdir -p ${ directory } ;
+                git clone ${ req.body.sourceCode } ${ directory } ;
+                cd ${ directory } ;
 
-                nvm use ${ req.body.runtimeVersion }
-                pnpm i
-                pnpm build
+                nvm use ${ req.body.runtimeVersion } ;
+                pnpm i ;
+                pnpm build ;
                 pnpm i -P `)
             if ( stderr ) throw new Error( stderr )
             
             await execSync( `
-                cd ${ directory }
+                cd ${ directory } ;
                 (PORT=${ port } pnpm start&)
                 ` , { shell: '/bin/bash', stdio: 'ignore' } )
             
         } else if ( req.body.type == 'WebStatic' ) {
             const { stderr } = await Run( `
-                mkdir -p ${ directory }
-                git clone --depth 1 --no-checkout ${ req.body.sourceCode } ${ directory }
-                cd ${ directory }
+                mkdir -p ${ directory } ;
+                git clone --depth 1 --no-checkout ${ req.body.sourceCode } ${ directory } ;
+                cd ${ directory } ;
 
-                git sparse-checkout set dist
-                git checkout`)
+                git sparse-checkout set dist ;
+                git checkout` )
             if ( stderr ) throw new Error( stderr )
 
             await execSync( `
-                cd ${ directory }
+                cd ${ directory } ;
                 (serve -s dist -p ${ port }&)
                 ` , { shell: '/bin/bash', stdio: 'ignore' } )
             
@@ -68,28 +68,28 @@ export const update = async ( req, res, next ) => {
 
         if ( req.body.type == 'NodeJs' ) {
             const { stderr } = await Run( `
-                cd ${ directory }
-                git pull
+                cd ${ directory } ;
+                git pull ;
 
-                nvm use ${ req.body.runtimeVersion }
-                pnpm i
-                pnpm build
+                nvm use ${ req.body.runtimeVersion } ;
+                pnpm i ;
+                pnpm build ;
                 pnpm i -P`)
             if ( stderr ) throw new Error( stderr )
 
             await execSync( `
-                cd ${ directory }
+                cd ${ directory } ;
                 (PORT=${ port } pnpm start&)
                 ` , { shell: '/bin/bash', stdio: 'ignore' } )
             
         } else if ( req.body.type == 'WebStatic' ) {
             const { stderr } = await Run( `
-                cd ${ directory }
+                cd ${ directory } ;
                 git pull`)
             if ( stderr ) throw new Error( stderr )
 
             await execSync( `
-                cd ${ directory }
+                cd ${ directory } ;
                 (serve -s dist -p ${ port }&)
                 ` , { shell: '/bin/bash', stdio: 'ignore' } )
         }

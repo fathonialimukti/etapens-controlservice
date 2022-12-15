@@ -16,19 +16,19 @@ export const create = async ( req, res, next ) => {
         const port = targetPort( req.body.id )
 
         const { stderr } = await Run( `
-            mkdir -p ${ directory }
-            git clone ${ req.body.sourceCode } ${ directory }
-            cd ${ directory }
+            mkdir -p ${ directory } ;
+            git clone ${ req.body.sourceCode } ${ directory } ;
+            cd ${ directory } ;
 
-            nvm use ${ req.body.runtimeVersion }
-            pnpm i
-            pnpm build
+            nvm use ${ req.body.runtimeVersion } ;
+            pnpm i ;
+            pnpm build ;
             pnpm i -P `)
         
         if ( stderr ) throw new Error( stderr )
 
         await execSync( `
-            cd ${ directory }
+            cd ${ directory } ;
             (PORT=${ port } pnpm start&)
             ` , { shell: '/bin/bash', stdio: 'ignore' } )
 
@@ -47,17 +47,17 @@ export const update = async ( req, res, next ) => {
         const directory = targetDirectory( req.body.username )
 
         const { stderr } = await Run( `
-                cd ${ directory }
-                git pull
+                cd ${ directory } ;
+                git pull ;
 
-                nvm use ${ req.body.runtimeVersion }
-                pnpm i
-                pnpm build
+                nvm use ${ req.body.runtimeVersion } ;
+                pnpm i ;
+                pnpm build ;
                 pnpm i -P`)
         if ( stderr ) throw new Error( stderr )
 
         await execSync( `
-                cd ${ directory }
+                cd ${ directory } ;
                 (PORT=${ port } pnpm start&)
                 ` , { shell: '/bin/bash', stdio: 'ignore' } )
 
