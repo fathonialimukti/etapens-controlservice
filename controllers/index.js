@@ -1,6 +1,5 @@
 import { exec, execSync, spawn } from "node:child_process"
 import util from "node:util"
-import { appDirectory } from "../constant/directories.js"
 
 const Run = util.promisify( exec )
 

@@ -1,1 +1,0 @@
-export const hostIp = process.env.HOST

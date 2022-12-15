@@ -1,11 +1,9 @@
 import { exec, execSync } from "node:child_process"
 import util from "node:util"
-import { appDirectory } from '../constant/directories.js'
-import { hostIp } from "../constant/host.js"
 
 const Run = util.promisify( exec )
 
-const targetDirectory = ( username ) => `${ appDirectory }/${ username }/backend`
+const targetDirectory = ( username ) => `${ process.env.APPS_DIRECTORY }/${ username }/backend`
 const targetPort = ( id ) => 20000 + parseInt( id )
 
 export const create = async ( req, res, next ) => {
@@ -32,7 +30,7 @@ export const create = async ( req, res, next ) => {
             (PORT=${ port } pnpm start&)
             ` , { shell: '/bin/bash', stdio: 'ignore' } )
 
-        res.status( 200 ).json( { url: `${ hostIp }:${ port }` } )
+        res.status( 200 ).json( { url: `${ process.env.HOST }:${ port }` } )
     } catch ( error ) {
         next( error )
     }
@@ -61,7 +59,7 @@ export const update = async ( req, res, next ) => {
                 (PORT=${ port } pnpm start&)
                 ` , { shell: '/bin/bash', stdio: 'ignore' } )
 
-        res.status( 200 ).json( { url: `${ hostIp }:${ port }` } )
+        res.status( 200 ).json( { url: `${ process.env.HOST }:${ port }` } )
     } catch ( error ) {
         next( error )
     }
