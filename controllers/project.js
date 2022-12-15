@@ -14,9 +14,6 @@ export const create = async ( req, res, next ) => {
         const directory = targetDirectory( req.body.username )
         const port = targetPort( req.body.id )
 
-        console.log( directory, port );
-        return
-
         if ( req.body.type == 'NodeJs' ) {
             const { stderr } = await Run( `
                 mkdir -p ${ directory } ;
