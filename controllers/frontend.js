@@ -112,6 +112,47 @@ export const updateNodeJs = async ( req, res, next ) => {
     }
 }
 
+export const startWebStatic = async ( req, res, next ) => {
+    try {
+        if ( !req.body.username || !req.body.id ) next( 'data missing' )
+
+        const port = targetPort( req.body.id )
+        const directory = targetDirectory( req.body.username )
+
+        await execSync( `
+            cd ${ directory }
+            (serve -s dist -p ${ port }&)
+            `, { shell: '/bin/bash', stdio: 'inherit' } )
+
+        res.status( 200 ).json( { message: "OK" } )
+    } catch ( error ) {
+        next( error )
+    }
+}
+
+
+export const startNodeJs = async ( req, res, next ) => {
+    try {
+        if ( !req.body.username || !req.body.id || !req.body.runtimeVersion ) next( 'data missing' )
+
+        const port = targetPort( req.body.id )
+        const directory = targetDirectory( req.body.username )
+
+        await execSync( `
+            source ${ process.env.NVM_DIR }/nvm.sh
+            nvm use ${ req.body.runtimeVersion }
+
+            cd ${ directory }
+            (PORT=${ port } pnpm start&)
+            `, { shell: '/bin/bash', stdio: 'inherit' } )
+
+        res.status( 200 ).json( { message: "OK" } )
+    } catch ( error ) {
+        next( error )
+    }
+}
+
+
 export const stop = async ( req, res, next ) => {
     try {
         if ( !req.body.id ) next( 'data missing' )
@@ -120,10 +161,9 @@ export const stop = async ( req, res, next ) => {
 
         await execSync( `
             kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })
-            `, { shell: '/bin/bash' } )
+            `, { shell: '/bin/bash', stdio: 'inherit' } )
 
-        if ( stderr ) next( stderr )
-        res.status( 200 ).json( { message: stdout } )
+        res.status( 200 ).json( { message: "OK" } )
     } catch ( error ) {
         next( error )
     }

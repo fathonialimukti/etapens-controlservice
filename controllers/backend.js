@@ -1,14 +1,11 @@
-import { exec, execSync } from "node:child_process"
-import util from "node:util"
-
-const Run = util.promisify( exec )
+import { execSync } from "node:child_process"
 
 const targetDirectory = ( username ) => `${ process.env.APPS_DIRECTORY }/${ username }/backend`
 const targetPort = ( id ) => 20000 + parseInt( id )
 
 export const create = async ( req, res, next ) => {
     try {
-        if ( !req.body.username || !req.body.sourceCode || !req.body.id || !req.body.runtimeVersion ) next( 'data missing' )
+        if ( !req.body.username || !req.body.sourceCode || !req.body.id || !req.body.runtimeVersion ) throw new Error( 'data missing' )
 
         const directory = targetDirectory( req.body.username )
         const port = targetPort( req.body.id )
@@ -35,7 +32,7 @@ export const create = async ( req, res, next ) => {
 
 export const update = async ( req, res, next ) => {
     try {
-        if ( !req.body.username || !req.body.sourceCode || !req.body.id ) next( 'data missing' )
+        if ( !req.body.username || !req.body.sourceCode || !req.body.id || !req.body.runtimeVersion ) throw new Error( 'data missing' )
 
         const port = targetPort( req.body.id )
         const directory = targetDirectory( req.body.username )
@@ -62,22 +59,41 @@ export const update = async ( req, res, next ) => {
     }
 }
 
-export const stop = async ( req, res, next ) => {
+export const start = async ( req, res, next ) => {
     try {
-        if ( !req.body.id ) next( 'data missing' )
+        if ( !req.body.id || !req.body.username || !req.body.runtimeVersion ) throw new Error( 'data missing' )
 
         const port = targetPort( req.body.id )
-        const { stdout, stderr } = await Run( `
-            kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })
-            `, { shell: '/bin/bash' } )
+        const directory = targetDirectory( req.body.username )
 
-        if ( stderr ) throw new Error(stderr)
-        res.status( 200 ).json( { message: stdout } )
+        await execSync( `
+            source ${ process.env.NVM_DIR }/nvm.sh
+            nvm use ${ req.body.runtimeVersion }
+
+            cd ${ directory }
+            (PORT=${ port } pnpm start&)
+            `, { shell: '/bin/bash', stdio: 'inherit' } )
+
+        res.status( 200 ).json( { message: stdout, error: stderr } )
     } catch ( error ) {
         next( error )
     }
 }
 
+export const stop = async ( req, res, next ) => {
+    try {
+        if ( !req.body.id ) throw new Error( 'data missing' )
+
+        const port = targetPort( req.body.id )
+        await execSync( `
+            kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })
+            `, { shell: '/bin/bash' } )
+
+        res.status( 200 ).json( { message: stdout } )
+    } catch ( error ) {
+        next( error )
+    }
+}
 
 export const remove = async ( req, res, next ) => {
     try {
