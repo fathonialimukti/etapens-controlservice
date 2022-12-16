@@ -18,6 +18,7 @@ export const create = async ( req, res, next ) => {
             git clone ${ req.body.sourceCode } ${ directory }
             cd ${ directory }
 
+            source ${ process.env.NVM_DIR }/nvm.sh
             nvm use ${ req.body.runtimeVersion }
             pnpm i
             pnpm build
@@ -37,13 +38,15 @@ export const update = async ( req, res, next ) => {
         if ( !req.body.username || !req.body.sourceCode || !req.body.id ) next( 'data missing' )
 
         const port = targetPort( req.body.id )
-        await execSync( `kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })`, { shell: '/bin/bash', stdio: 'inherit' } )
         const directory = targetDirectory( req.body.username )
 
         await execSync( `
+            kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })
+
             cd ${ directory }
             git pull
 
+            source ${ process.env.NVM_DIR }/nvm.sh
             nvm use ${ req.body.runtimeVersion }
             pnpm i
             pnpm build
@@ -64,9 +67,11 @@ export const stop = async ( req, res, next ) => {
         if ( !req.body.id ) next( 'data missing' )
 
         const port = targetPort( req.body.id )
-        const { stdout,stderr } = await Run( `kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })`, { shell: '/bin/bash' } )
+        const { stdout, stderr } = await Run( `
+            kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })
+            `, { shell: '/bin/bash' } )
 
-        if ( stderr ) next(stderr)
+        if ( stderr ) throw new Error(stderr)
         res.status( 200 ).json( { message: stdout } )
     } catch ( error ) {
         next( error )
@@ -76,15 +81,15 @@ export const stop = async ( req, res, next ) => {
 
 export const remove = async ( req, res, next ) => {
     try {
-
+        if ( !req.body.id || !req.body.username ) throw new Error( 'data missing' )
         const port = targetPort( req.body.id )
-        const processPid = await pids( port )
-        const pid = processPid.all.pop()
-        await stopProcess( pid )
 
         const directory = targetDirectory( req.body.username )
 
-        await execSync( `rm -rf ${ directory }`, { shell: '/bin/bash', stdio: 'inherit' } )
+        await execSync( `
+            kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })
+            rm -rf ${ directory }
+            `, { shell: '/bin/bash', stdio: 'inherit' } )
 
         res.status( 200 ).json( { message: stdout, error: stderr } )
     } catch ( error ) {

@@ -42,7 +42,9 @@ export const createNodeJs = async ( req, res, next ) => {
             git clone ${ req.body.sourceCode } ${ directory }
             cd ${ directory }
 
+            source ${ process.env.NVM_DIR }/nvm.sh
             nvm use ${ req.body.runtimeVersion }
+
             pnpm i
             pnpm build
             pnpm i -P
@@ -50,7 +52,7 @@ export const createNodeJs = async ( req, res, next ) => {
             cd ${ directory }
             (PORT=${ port } pnpm start&)
             `, { shell: '/bin/bash', stdio: 'inherit' } )
-            
+
 
         res.status( 200 ).json( { url: `${ process.env.HOST }:${ port }` } )
     } catch ( error ) {
@@ -94,6 +96,7 @@ export const updateNodeJs = async ( req, res, next ) => {
             cd ${ directory }
             git pull
 
+            source ${ process.env.NVM_DIR }/nvm.sh
             nvm use ${ req.body.runtimeVersion }
             pnpm i
             pnpm build

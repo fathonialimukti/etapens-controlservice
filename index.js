@@ -3,7 +3,7 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import errorMiddleware from './middlewares/error.js'
 import indexRoute from './routes/index.js'
-import projectRoute from './routes/project.js'
+import frontendRoute from './routes/frontend.js'
 import backendRoute from './routes/backend.js'
 import databaseRoute from './routes/database.js'
 import https from 'https'
@@ -23,7 +23,7 @@ app.use( bodyParser.json() )
 
 app.use( '', indexRoute)
 
-app.use( '/project', projectRoute )
+app.use( '/frontend', frontendRoute )
 app.use( '/backend', backendRoute )
 app.use( '/database', databaseRoute )
 
