@@ -17,6 +17,7 @@ export const create = async ( req, res, next ) => {
 
             source ${ process.env.NVM_DIR }/nvm.sh
             nvm use ${ req.body.runtimeVersion }
+            
             pnpm i
             pnpm build
             pnpm i -P 
