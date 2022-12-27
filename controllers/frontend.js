@@ -8,9 +8,7 @@ const targetPort = ( id ) => 10000 + parseInt( id )
 
 export const createWebStatic = async ( req, res, next ) => {
     try {
-        if ( !req.body.username || !req.body.sourceCode || !req.body.id ) next( 'data missing' )
-
-        console.log(req.body);
+        if ( !req.body.username || !req.body.sourceCode || !req.body.id ) throw new Error( 'data missing' )
 
         const directory = targetDirectory( req.body.username )
         const port = targetPort( req.body.id )
@@ -34,7 +32,7 @@ export const createWebStatic = async ( req, res, next ) => {
 
 export const createNodeJs = async ( req, res, next ) => {
     try {
-        if ( !req.body.username || !req.body.sourceCode || !req.body.id || !req.body.runtimeVersion ) next( 'data missing' )
+        if ( !req.body.username || !req.body.sourceCode || !req.body.id || !req.body.runtimeVersion ) throw new Error( 'data missing' )
 
         const directory = targetDirectory( req.body.username )
         const port = targetPort( req.body.id )
@@ -64,7 +62,7 @@ export const createNodeJs = async ( req, res, next ) => {
 
 export const updateWebStatic = async ( req, res, next ) => {
     try {
-        if ( !req.body.username || !req.body.sourceCode || !req.body.id ) next( 'data missing' )
+        if ( !req.body.username || !req.body.sourceCode || !req.body.id ) throw new Error( 'data missing' )
 
         const port = targetPort( req.body.id )
         const directory = targetDirectory( req.body.username )
@@ -87,7 +85,7 @@ export const updateWebStatic = async ( req, res, next ) => {
 
 export const updateNodeJs = async ( req, res, next ) => {
     try {
-        if ( !req.body.username || !req.body.sourceCode || !req.body.id || !req.body.runtimeVersion ) next( 'data missing' )
+        if ( !req.body.username || !req.body.sourceCode || !req.body.id || !req.body.runtimeVersion ) throw new Error( 'data missing' )
 
         const port = targetPort( req.body.id )
         const directory = targetDirectory( req.body.username )
@@ -116,7 +114,7 @@ export const updateNodeJs = async ( req, res, next ) => {
 
 export const startWebStatic = async ( req, res, next ) => {
     try {
-        if ( !req.body.username || !req.body.id ) next( 'data missing' )
+        if ( !req.body.username || !req.body.id ) throw new Error( 'data missing' )
 
         const port = targetPort( req.body.id )
         const directory = targetDirectory( req.body.username )
@@ -135,7 +133,7 @@ export const startWebStatic = async ( req, res, next ) => {
 
 export const startNodeJs = async ( req, res, next ) => {
     try {
-        if ( !req.body.username || !req.body.id || !req.body.runtimeVersion ) next( 'data missing' )
+        if ( !req.body.username || !req.body.id || !req.body.runtimeVersion ) throw new Error( 'data missing' )
 
         const port = targetPort( req.body.id )
         const directory = targetDirectory( req.body.username )
@@ -173,7 +171,7 @@ export const stop = async ( req, res, next ) => {
 
 export const remove = async ( req, res, next ) => {
     try {
-        if ( !req.body.username || !req.body.id ) next( 'data missing' )
+        if ( !req.body.username || !req.body.id ) throw new Error( 'data missing' )
 
         const port = targetPort( req.body.id )
         const directory = targetDirectory( req.body.username )
