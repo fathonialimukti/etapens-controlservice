@@ -10,6 +10,8 @@ export const createWebStatic = async ( req, res, next ) => {
     try {
         if ( !req.body.username || !req.body.sourceCode || !req.body.id ) next( 'data missing' )
 
+        console.log(req.body);
+
         const directory = targetDirectory( req.body.username )
         const port = targetPort( req.body.id )
 
