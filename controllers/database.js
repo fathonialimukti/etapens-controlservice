@@ -12,10 +12,10 @@ export const create = async ( req, res, next ) => {
 
             // mysql -u root -p ${rootPassword} -e "create database somedb"
             await execSync( `
-                sudo mysql -e "CREATE USER '${ req.body.username }'@'%' IDENTIFIED BY '${ req.body.password }';"
-                sudo mysql -e "GRANT ALL PRIVILEGES ON '${ req.body.dbname }'.* TO '${ req.body.username }'@'%';"
+                sudo mysql -e "CREATE USER '${ req.body.username }'@'%' IDENTIFIED BY '${ req.body.password }';";
+                sudo mysql -e "GRANT ALL PRIVILEGES ON '${ req.body.dbname }'.* TO '${ req.body.username }'@'%';";
 
-                sudo mysql -e "CREATE DATABASE '${ req.body.dbname }';"
+                sudo mysql -e "CREATE DATABASE '${ req.body.dbname }';";
 
             `, { shell: '/bin/bash', stdio: 'inherit' } )
 
