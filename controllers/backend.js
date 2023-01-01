@@ -75,7 +75,7 @@ export const start = async ( req, res, next ) => {
             (PORT=${ port } pnpm start&)
             `, { shell: '/bin/bash', stdio: 'inherit' } )
 
-        res.status( 200 ).json( { message: stdout, error: stderr } )
+        res.status( 200 ).json( { message: 'OK' } )
     } catch ( error ) {
         next( error )
     }
@@ -90,7 +90,7 @@ export const stop = async ( req, res, next ) => {
             kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })
             `, { shell: '/bin/bash' } )
 
-        res.status( 200 ).json( { message: stdout } )
+        res.status( 200 ).json( { message: "OK" } )
     } catch ( error ) {
         next( error )
     }
@@ -108,7 +108,7 @@ export const remove = async ( req, res, next ) => {
             rm -rf ${ directory }
             `, { shell: '/bin/bash', stdio: 'inherit' } )
 
-        res.status( 200 ).json( { message: stdout, error: stderr } )
+        res.status( 200 ).json( { message: "OK" } )
     } catch ( error ) {
         next( error )
     }
