@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process"
+import { childProcessLog } from "../utils/log.js"
 
 const targetDirectory = ( username ) => `${ process.env.APPS_DIRECTORY }/${ username }/backend`
 const targetPort = ( id ) => 20000 + parseInt( id )
@@ -23,7 +24,7 @@ export const create = async ( req, res, next ) => {
             pnpm i -P 
 
             (PORT=${ port } pnpm start&)
-            ` , { shell: '/bin/bash', stdio: 'inherit' } )
+            ` , { shell: '/bin/bash', stdio: childProcessLog } )
 
         res.status( 200 ).json( { url: `${ process.env.HOST }:${ port }` } )
     } catch ( error ) {
@@ -52,7 +53,7 @@ export const update = async ( req, res, next ) => {
 
             cd ${ directory }
             (PORT=${ port } pnpm start&)
-            ` , { shell: '/bin/bash', stdio: 'inherit' } )
+            ` , { shell: '/bin/bash', stdio: childProcessLog } )
 
         res.status( 200 ).json( { url: `${ process.env.HOST }:${ port }` } )
     } catch ( error ) {
@@ -73,7 +74,7 @@ export const start = async ( req, res, next ) => {
 
             cd ${ directory }
             (PORT=${ port } pnpm start&)
-            `, { shell: '/bin/bash', stdio: 'inherit' } )
+            `, { shell: '/bin/bash', stdio: childProcessLog } )
 
         res.status( 200 ).json( { message: 'OK' } )
     } catch ( error ) {
@@ -106,7 +107,7 @@ export const remove = async ( req, res, next ) => {
         await execSync( `
             kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })
             rm -rf ${ directory }
-            `, { shell: '/bin/bash', stdio: 'inherit' } )
+            `, { shell: '/bin/bash', stdio: childProcessLog } )
 
         res.status( 200 ).json( { message: "OK" } )
     } catch ( error ) {

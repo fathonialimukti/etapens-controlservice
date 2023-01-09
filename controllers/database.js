@@ -1,5 +1,6 @@
 import { exec, execSync } from "node:child_process"
 import util from "node:util"
+import { childProcessLog } from "../utils/log.js"
 
 const Run = util.promisify( exec )
 
@@ -15,7 +16,7 @@ export const create = async ( req, res, next ) => {
                 sudo mysql -e "CREATE DATABASE ${ req.body.dbname };"
                 sudo mysql -e "CREATE USER '${ req.body.username }'@'%' IDENTIFIED BY '${ req.body.password }';"
                 sudo mysql -e "GRANT ALL PRIVILEGES ON ${ req.body.dbname }.* TO '${ req.body.username }'@'%';"
-            `, { shell: '/bin/bash', stdio: 'inherit' } )
+            `, { shell: '/bin/bash', stdio: childProcessLog } )
 
         } else if ( req.body.type == 'postgresql' ) {
             // const postgresPassword = ''
@@ -25,7 +26,7 @@ export const create = async ( req, res, next ) => {
                 sudo -u postgres psql -c "CREATE USER ${ req.body.username } WITH PASSWORD '${ req.body.password }';"
                 sudo -u postgres psql -c "CREATE DATABASE ${ req.body.dbname } WITH OWNER ${ req.body.username };"
 
-            `, { shell: '/bin/bash', stdio: 'inherit' } )
+            `, { shell: '/bin/bash', stdio: childProcessLog } )
 
         } else next( "Invalid DB type" )
 

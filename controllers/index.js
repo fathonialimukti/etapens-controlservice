@@ -1,5 +1,6 @@
-import { exec, execSync, spawn } from "node:child_process"
+import { exec, execSync } from "node:child_process"
 import util from "node:util"
+import { childProcessLog } from "../utils/log.js"
 
 const Run = util.promisify( exec )
 const targetDirectory = ( username ) => `${ process.env.APPS_DIRECTORY }/${ username }/frontend`
@@ -9,7 +10,7 @@ export const index = async ( req, res, next ) => {
     try {
         // await execSync( `
         //     kill -15 $(lsof -t -i :10011)
-        // `, { shell: '/bin/bash', stdio: 'inherit' } )
+        // `, { shell: '/bin/bash', stdio: childProcessLog } )
 
         // if ( !req.body.username || !req.body.sourceCode || !req.body.id || !req.body.type ) throw new Error( 'data missing' )
         // const directory = targetDirectory( req.body.username )
@@ -24,15 +25,15 @@ export const index = async ( req, res, next ) => {
         //     git checkout
         //     cd ${ directory }
         //     (serve -s dist -p ${ port }&)
-        //     ` , { shell: '/bin/bash', stdio: 'inherit' } )
+        //     ` , { shell: '/bin/bash', stdio: childProcessLog } )
 
-        console.log( process.env.NVM_DIR );
+        console.log( process.env.NVM_DIR )
         await execSync( `
             source ${ process.env.NVM_DIR }/nvm.sh
             nvm use 18
         `, {
             shell: '/bin/bash',
-            stdio: 'inherit'
+            stdio: childProcessLog
         } )
 
         res.status( 200 ).json( { message: "OK" } )

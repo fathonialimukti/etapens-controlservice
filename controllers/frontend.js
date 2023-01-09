@@ -1,7 +1,5 @@
-import { exec, execSync } from "node:child_process"
-import util from "node:util"
-
-// const Run = util.promisify( exec )
+import { execSync } from "node:child_process"
+import { childProcessLog } from "../utils/log.js"
 
 const targetDirectory = ( username ) => `${ process.env.APPS_DIRECTORY }/${ username }/frontend`
 const targetPort = ( id ) => 10000 + parseInt( id )
@@ -22,7 +20,7 @@ export const createWebStatic = async ( req, res, next ) => {
             git checkout
             cd ${ directory }
             (serve -s dist -p ${ port } &)
-            ` , { shell: '/bin/bash', stdio: 'inherit' } )
+            ` , { shell: '/bin/bash', stdio: childProcessLog } )
 
         res.status( 200 ).json( { url: `${ process.env.HOST }:${ port }` } )
     } catch ( error ) {
@@ -51,7 +49,7 @@ export const createNodeJs = async ( req, res, next ) => {
 
             cd ${ directory }
             (PORT=${ port } pnpm start&)
-            `, { shell: '/bin/bash', stdio: 'inherit' } )
+            `, { shell: '/bin/bash', stdio: childProcessLog } )
 
 
         res.status( 200 ).json( { url: `${ process.env.HOST }:${ port }` } )
@@ -75,7 +73,7 @@ export const updateWebStatic = async ( req, res, next ) => {
             
             cd ${ directory }
             (serve -s dist -p ${ port }&)
-            `, { shell: '/bin/bash', stdio: 'inherit' } )
+            `, { shell: '/bin/bash', stdio: childProcessLog } )
 
         res.status( 200 ).json( { url: `${ process.env.HOST }:${ port }` } )
     } catch ( error ) {
@@ -104,7 +102,7 @@ export const updateNodeJs = async ( req, res, next ) => {
             
             cd ${ directory }
             (PORT=${ port } pnpm start&)
-            ` , { shell: '/bin/bash', stdio: 'inherit' } )
+            ` , { shell: '/bin/bash', stdio: childProcessLog } )
 
         res.status( 200 ).json( { url: `${ process.env.HOST }:${ port }` } )
     } catch ( error ) {
@@ -122,7 +120,7 @@ export const startWebStatic = async ( req, res, next ) => {
         await execSync( `
             cd ${ directory }
             (serve -s dist -p ${ port }&)
-            `, { shell: '/bin/bash', stdio: 'inherit' } )
+            `, { shell: '/bin/bash', stdio: childProcessLog } )
 
         res.status( 200 ).json( { message: "OK" } )
     } catch ( error ) {
@@ -144,7 +142,7 @@ export const startNodeJs = async ( req, res, next ) => {
 
             cd ${ directory }
             (PORT=${ port } pnpm start&)
-            `, { shell: '/bin/bash', stdio: 'inherit' } )
+            `, { shell: '/bin/bash', stdio: childProcessLog } )
 
         res.status( 200 ).json( { message: "OK" } )
     } catch ( error ) {
@@ -161,7 +159,7 @@ export const stop = async ( req, res, next ) => {
 
         await execSync( `
             kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })
-            `, { shell: '/bin/bash', stdio: 'inherit' } )
+            `, { shell: '/bin/bash', stdio: childProcessLog } )
 
         res.status( 200 ).json( { message: "OK" } )
     } catch ( error ) {
@@ -179,7 +177,7 @@ export const remove = async ( req, res, next ) => {
         await execSync( `
             kill -15 $(lsof -t -i :${ port }) && kill -9 $(lsof -t -i :${ port })
             rm -rf ${ directory } 
-        `, { shell: '/bin/bash', stdio: 'inherit' } )
+        `, { shell: '/bin/bash', stdio: childProcessLog } )
 
         if ( stderr ) next( stderr )
 
