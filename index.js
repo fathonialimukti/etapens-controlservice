@@ -13,10 +13,6 @@ dotenv.config()
 
 const app = express()
 
-const options = {
-    key: fs.readFileSync( './private.key' ),
-    cert: fs.readFileSync( './certificate.crt' )
-}
 app.use( cors() )
 app.use( bodyParser.urlencoded( { extended: false } ) )
 app.use( bodyParser.json() )
